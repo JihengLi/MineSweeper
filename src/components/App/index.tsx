@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import NumberDisplay from "../NumberDisplay";
 import { generateCells } from "../../utils";
 import Button from "../Button";
+import { Face } from "../../types";
 
 import "./App.scss";
 
@@ -29,7 +30,7 @@ const App = () => {
         <NumberDisplay value={0} />
         <div className="Face">
           <span role="image" aria-label="face">
-            🙂
+            {Face.smile}
           </span>
         </div>
         <NumberDisplay value={23} />
