@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import NumberDisplay from "../NumberDisplay";
 import { generateCells, openMultipleCells } from "../../utils";
@@ -6,16 +6,22 @@ import Button from "../Button";
 import { Cell, CellState, CellValue, Face } from "../../types";
 
 import "./App.scss";
-import { MAX_COLS, MAX_ROWS } from "../../constants";
+import { MAX_COLS, MAX_ROWS, NUM_OF_BOMBS } from "../../constants";
 
 const App = () => {
   const [cells, setCells] = useState<Cell[][]>(generateCells());
   const [face, setFace] = useState<Face>(Face.smile);
   const [time, setTime] = useState<number>(0);
   const [live, setLive] = useState<boolean>(false);
-  const [bombCounter, setBombCounter] = useState<number>(10);
+  const [bombCounter, setBombCounter] = useState<number>(NUM_OF_BOMBS);
   const [lose, setLose] = useState<boolean>(false);
   const [win, setWin] = useState<boolean>(false);
+
+  const currentFace = useRef(face);
+
+  useEffect(() => {
+    if (face !== Face.oh) currentFace.current = face;
+  }, [face]);
 
   useEffect(() => {
     const handleMouseDown = (): void => {
@@ -23,7 +29,7 @@ const App = () => {
     };
 
     const handleMouseUp = (): void => {
-      setFace(Face.smile);
+      setFace(currentFace.current);
     };
 
     window.addEventListener("mousedown", handleMouseDown);
@@ -36,7 +42,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (live && time < 999) {
+    if (live && !lose && time < 999) {
       const timer = setInterval(() => {
         setTime(time + 1);
       }, 1000);
@@ -45,7 +51,7 @@ const App = () => {
         clearInterval(timer);
       };
     }
-  }, [live, time]);
+  }, [live, lose, time]);
 
   useEffect(() => {
     if (lose) {
@@ -64,13 +70,14 @@ const App = () => {
   const handleCellClick = (rowParam: number, colParam: number) => (): void => {
     let newCells = cells.slice();
 
-    // Start the game
+    // Start the game and make sure that the first click is none
     if (!live) {
-      let bomb = newCells[rowParam][colParam].value === CellValue.bomb;
-      while (bomb) {
+      let firstClickNone =
+        newCells[rowParam][colParam].value === CellValue.none;
+      while (!firstClickNone) {
         newCells = generateCells();
-        if (newCells[rowParam][colParam].value !== CellValue.bomb) {
-          bomb = false;
+        if (newCells[rowParam][colParam].value === CellValue.none) {
+          firstClickNone = true;
         }
       }
       setLive(true);
@@ -79,6 +86,10 @@ const App = () => {
     const currentCell = newCells[rowParam][colParam];
 
     if ([CellState.visible, CellState.flagged].includes(currentCell.state)) {
+      return;
+    }
+
+    if (lose && currentCell.state === CellState.open) {
       return;
     }
 
@@ -152,9 +163,10 @@ const App = () => {
     setLive(false);
     setTime(0);
     setCells(generateCells());
-    setBombCounter(10);
+    setBombCounter(NUM_OF_BOMBS);
     setLose(false);
     setWin(false);
+    setFace(Face.smile);
   };
 
   const renderCells = (): React.ReactNode => {
