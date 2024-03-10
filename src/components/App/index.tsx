@@ -11,7 +11,15 @@ const App = () => {
 
   const renderCells = (): React.ReactNode => {
     return cells.map((row, rowIndex) =>
-      row.map((col, colIndex) => <Button key={`${rowIndex}-${colIndex}`} />)
+      row.map((cell, colIndex) => (
+        <Button
+          key={`${rowIndex}-${colIndex}`}
+          state={cell.state}
+          value={cell.value}
+          row={rowIndex}
+          col={colIndex}
+        />
+      ))
     );
   };
 
