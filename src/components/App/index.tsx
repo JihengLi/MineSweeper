@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 
 import NumberDisplay from "../NumberDisplay";
-import { generateCells } from "../../utils";
+import { generateCells, openMultipleCells } from "../../utils";
 import Button from "../Button";
-import { Cell, CellState, Face } from "../../types";
+import { Cell, CellState, CellValue, Face } from "../../types";
 
 import "./App.scss";
 
@@ -49,6 +49,22 @@ const App = () => {
     if (!live) {
       setLive(true);
     }
+
+    const currentCell = cells[rowParam][colParam];
+    let newCells = cells.slice();
+
+    if ([CellState.visible, CellState.flagged].includes(currentCell.state)) {
+      return;
+    }
+
+    if (currentCell.value === CellValue.bomb) {
+    } else if (currentCell.value === CellValue.none) {
+      newCells = openMultipleCells(newCells, rowParam, colParam);
+      setCells(newCells);
+    } else {
+      newCells[rowParam][colParam].state = CellState.visible;
+      setCells(newCells);
+    }
   };
 
   const handleCellContext =
@@ -79,6 +95,7 @@ const App = () => {
       setLive(false);
       setTime(0);
       setCells(generateCells());
+      setBombCounter(10);
     }
   };
 
