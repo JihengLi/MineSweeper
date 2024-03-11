@@ -110,7 +110,7 @@ const App = () => {
       return;
     }
 
-    if (lose && currentCell.state === CellState.open) {
+    if (lose || win) {
       return;
     }
 
