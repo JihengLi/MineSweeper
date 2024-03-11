@@ -15,14 +15,6 @@
   align-items: center;
 }
 
-.Body {
-  @include borders(#7b7b7b, white);
-  margin-top: 16px;
-  display: grid;
-  grid-template-rows: repeat(16, 1fr);
-  grid-template-columns: repeat(16, 1fr);
-}
-
 .Face {
   @include borders;
   @include buttons;
